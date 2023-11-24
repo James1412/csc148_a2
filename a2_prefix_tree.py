@@ -125,13 +125,20 @@ class SimplePrefixTree(Autocompleter):
     def __init__(self) -> None:
         """Initialize an empty simple prefix tree.
         """
-
+        self.root = []
+        self.weight = 0.0
+        self.subtrees = []
 
     def is_empty(self) -> bool:
         """Return whether this simple prefix tree is empty."""
+        if self.weight == 0:
+            return True
+        else:
+            return False
 
     def is_leaf(self) -> bool:
         """Return whether this simple prefix tree is a leaf."""
+        return self.subtrees == [] and self.weight > 0
 
     def __len__(self) -> int:
         """Return the number of LEAF values stored in this prefix tree.
@@ -139,6 +146,12 @@ class SimplePrefixTree(Autocompleter):
         Note that this is a different definition than how we calculate __len__
         of regular trees from lecture!
         """
+        if self.is_empty():
+            return 0
+        elif self.is_leaf():
+            return 1
+        else:
+            return sum(subtree.__len__() for subtree in self.subtrees)
 
     ###########################################################################
     # Extra helper methods
@@ -146,7 +159,8 @@ class SimplePrefixTree(Autocompleter):
     def __str__(self) -> str:
         """Return a string representation of this prefix tree.
 
-        You may find this method helpful for debugging. You should not change this method
+        You may find this method helpful for debugging. You should not change
+        this method
         (nor the helper _str_indented).
         """
         return self._str_indented()
@@ -167,6 +181,48 @@ class SimplePrefixTree(Autocompleter):
     ###########################################################################
     # Add code for Parts 1(c), 2, and 3 here
     ###########################################################################
+    def insert(self, value: Any, weight: float, prefix: list) -> None:
+        """Insert the given value into this Autocompleter.
+
+        The value is inserted with the given weight, and is associated with
+        the prefix sequence <prefix>.
+
+        If the value has already been inserted into this autocompleter
+        (compare values using ==), then the given weight should be *added* to
+        the existing weight of this value.
+
+        Preconditions:
+        - weight > 0
+        - the given value is either:
+            1) not in this Autocompleter, or
+            2) was previously inserted with the SAME prefix sequence
+
+        >>> t = SimplePrefixTree()
+        >>> t.insert('cat', 2.0, ['c', 'a', 't'])
+        >>> t.insert('car', 3.0, ['c', 'a', 'r'])
+        >>> t.insert('dog', 4.0, ['d', 'o', 'g'])
+        >>> print(t)
+        3
+        """
+        if not prefix:
+            self.weight = weight
+            leaf = SimplePrefixTree()
+            leaf.root = value
+            leaf.weight = weight
+            self.subtrees.append(leaf)
+        else:
+            self.weight += weight
+            node = SimplePrefixTree()
+            node.root = self.root + [prefix[0]]
+            prefix.pop(0)
+            for subtree in self.subtrees:
+                if subtree.root == node.root:
+                    subtree.insert(value, weight, prefix)
+                    return
+            self.subtrees.append(node)
+            node.insert(value, weight, prefix)
+
+
 
 
 ################################################################################
