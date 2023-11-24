@@ -207,22 +207,24 @@ class SimplePrefixTree(Autocompleter):
         if not prefix:
             self.weight = weight
             leaf = SimplePrefixTree()
-            leaf.root = value
+            leaf.root = [value]
             leaf.weight = weight
             self.subtrees.append(leaf)
         else:
             self.weight += weight
+            next_char = prefix.pop(0)
             node = SimplePrefixTree()
-            node.root = self.root + [prefix[0]]
-            prefix.pop(0)
-            for subtree in self.subtrees:
-                if subtree.root == node.root:
-                    subtree.insert(value, weight, prefix)
-                    return
-            self.subtrees.append(node)
-            node.insert(value, weight, prefix)
+            node.root = self.root + [next_char]
 
+            # Check if a subtree with the same root exists
+            matching_subtree = next((subtree for subtree in self.subtrees
+                                     if subtree.root == node.root), None)
 
+            if matching_subtree:
+                matching_subtree.insert(value, weight, prefix)
+            else:
+                self.subtrees.append(node)
+                node.insert(value, weight, prefix)
 
 
 ################################################################################
