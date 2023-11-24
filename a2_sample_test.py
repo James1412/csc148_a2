@@ -50,6 +50,24 @@ def test_simple_prefix_tree_structure() -> None:
     assert right.weight == 4.0
 
 
+def test_simple_prefix_tree_2() -> None:
+    """This is a test for the structure of a small simple prefix tree.
+
+    NOTE: This test should pass even if you insert these values in a different
+    order. This is a good thing to try out.
+    """
+    t = SimplePrefixTree()
+    t.insert('cat', 2.0, [])
+
+    # t has 3 values (note that __len__ only counts the inserted values,
+    # which are stored at the *leaves* of the tree).
+    assert len(t) == 1
+
+    # t has a total weight of 9.0
+    assert t.weight == 2.0
+    assert t.root == []
+
+
 def test_simple_prefix_tree_autocomplete() -> None:
     """This is a test for the correct autocomplete behaviour for a small
     simple prefix tree.
@@ -60,17 +78,22 @@ def test_simple_prefix_tree_autocomplete() -> None:
     t = SimplePrefixTree()
     t.insert('cat', 2.0, ['c', 'a', 't'])
     t.insert('car', 3.0, ['c', 'a', 'r'])
+    t.insert('cart', 4.5, ['c', 'a', 'r', 't'])
     t.insert('dog', 4.0, ['d', 'o', 'g'])
+
+    assert t.autocomplete(['d']) == [('dog', 4.0)]
 
     # Note that the returned tuples *must* be sorted in non-increasing weight
     # order. You can (and should) sort the tuples yourself inside
     # SimplePrefixTree.autocomplete.
-    assert t.autocomplete([]) == [('dog', 4.0), ('car', 3.0), ('cat', 2.0)]
+    assert t.autocomplete([]) == [('cart', 4.5), ('dog', 4.0), ('car', 3.0), ('cat', 2.0)]
 
     # But keep in mind that the greedy algorithm here does not necessarily
     # return the highest-weight values!! In this case, the ['c'] subtree
     # is recursed on first.
-    assert t.autocomplete([], 1) == [('car', 3.0)]
+    assert t.autocomplete([], 1) == [('cart', 4.5)]
+    assert t.autocomplete([], 2) == [('cart', 4.5), ('car', 3.0)]
+    assert t.autocomplete(['ca']) == [('cart', 4.5), ('car', 3.0), ('cat', 2.0)]
 
 
 def test_simple_prefix_tree_remove() -> None:

@@ -226,6 +226,43 @@ class SimplePrefixTree(Autocompleter):
                 self.subtrees.append(node)
                 node.insert(value, weight, prefix)
 
+    def autocomplete(self, prefix: list,
+                     limit: int | None = None) -> list[tuple[Any, float]]:
+        """Return up to <limit> matches for the given prefix.
+
+        The return value is a list of tuples (value, weight), and must be
+        sorted by non-increasing weight. You can decide how to break ties.
+
+        If limit is None, return *every* match for the given prefix.
+
+        Preconditions:
+        - limit is None or limit > 0
+        """
+        if self.is_leaf():
+            lst = []
+            tuple1 = (self.root[0], self.weight)
+            lst.append(tuple1)
+            return lst
+
+        else:
+            sorted_list = []
+            for subtree in self.subtrees:
+                sorted_list += subtree.autocomplete(prefix)
+
+            if prefix is not None:
+                index = 0
+                for i in prefix:
+                    for item in sorted_list:
+                        if i not in item[0]:
+                            sorted_list.pop(index)
+                        index += 1
+
+            if limit is None:
+                return sorted(sorted_list, key=lambda x: x[1], reverse=True)
+            else:
+                return sorted_list[:limit]
+
+
 
 ################################################################################
 # CompressedPrefixTree (Part 6)
