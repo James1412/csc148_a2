@@ -221,6 +221,10 @@ class SimplePrefixTree(Autocompleter):
                                      if subtree.root == node.root), None)
 
             if matching_subtree:
+                if not prefix:
+                    matching_subtree.weight += weight
+                    matching_subtree.subtrees[0].weight += weight
+                    return
                 matching_subtree.insert(value, weight, prefix)
             else:
                 self.subtrees.append(node)
@@ -253,8 +257,9 @@ class SimplePrefixTree(Autocompleter):
                 for item in sorted_list:
                     # ex) item: ('cat', 1.0), item_chars: ['c', 'a', 't']
                     item_chars = list(item[0])
+                    item_word = item[0].split()
                     # Check if the characters appear in the correct order
-                    if all(item_chars[i] == prefix[i] for i in range(len(prefix))):
+                    if all(item_chars[i] == prefix[i] for i in range(len(prefix))) or all(item_word[i] == prefix[i] for i in range(len(prefix))):
                         continue
                     else:
                         sorted_list.remove(item)
@@ -284,8 +289,6 @@ class SimplePrefixTree(Autocompleter):
                     if not subtree.is_empty():
                         self.subtrees = [subtree]
                 self.weight = count
-
-
 
 ################################################################################
 # CompressedPrefixTree (Part 6)

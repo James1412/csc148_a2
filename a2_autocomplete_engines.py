@@ -81,6 +81,7 @@ class LetterAutocompleteEngine:
 
         with open(config['file'], encoding='utf8') as f:
             for line in f:
+                weight = 0
                 # If there is any non-whitespace character
                 if line != "":
                     sanitized_string = ""
@@ -89,12 +90,15 @@ class LetterAutocompleteEngine:
                         # Convert all letters to lowercase
                         char = character.lower()
                         # if that lowercase is alphanumerical or a space
-                        if char.isalnum() or char == " ":
+                        if char.isalnum() or char == " " or char == "," or char == ".":
                             sanitized_string += char
+                    print(sanitized_string)
+                    sanitized_string = sanitized_string.split(",")
                     # If it's not empty, insert it to the autocompleter
                     if sanitized_string != "":
-                        self.autocompleter.insert(sanitized_string, 1.0,
-                                                  list(sanitized_string))
+                        self.autocompleter.insert(sanitized_string[0], 1.0,
+                                                  list(sanitized_string[0]))
+            print(self.autocompleter)
 
     def autocomplete(self, prefix: str, limit: int | None = None) -> list[tuple[str, float]]:
         """Return up to <limit> matches for the given prefix string.
@@ -169,6 +173,31 @@ class SentenceAutocompleteEngine:
         """
         # We haven't given you any starter code here! You should review how
         # you processed CSV files on Assignment 1.
+        if config['autocompleter'] == 'simple':
+            self.autocompleter = SimplePrefixTree()
+        elif config['autocompleter'] == 'compressed':
+            self.autocompleter = CompressedPrefixTree()
+
+        with open(config['file'], encoding='utf8') as f:
+            for line in f:
+                weight = 0
+                # If there is any non-whitespace character
+                if line != "":
+                    sanitized_string = ""
+                    # Text Sanitization
+                    for character in line:
+                        # Convert all letters to lowercase
+                        char = character.lower()
+                        # if that lowercase is alphanumerical or a space
+                        if char.isalnum() or char == " " or char == "," or char == ".":
+                            sanitized_string += char
+                    print(sanitized_string)
+                    sanitized_string = sanitized_string.split(",")
+                    # If it's not empty, insert it to the autocompleter
+                    if sanitized_string != "":
+                        self.autocompleter.insert(sanitized_string[0], float(sanitized_string[1]),
+                                                  list(sanitized_string[0].split()))
+            print(self.autocompleter)
 
     def autocomplete(self, prefix: str, limit: int | None = None) -> list[tuple[str, float]]:
         """Return up to <limit> matches for the given prefix string.
@@ -185,6 +214,7 @@ class SentenceAutocompleteEngine:
         - limit is None or limit > 0
         - <prefix> is a sanitized string
         """
+        return self.autocompleter.autocomplete(list(prefix.split()), limit)
 
     def remove(self, prefix: str) -> None:
         """Remove all strings that match the given prefix.
@@ -195,7 +225,7 @@ class SentenceAutocompleteEngine:
         Preconditions:
         - <prefix> is a sanitized string
         """
-
+        self.autocompleter.remove(list(prefix.split()))
 
 ################################################################################
 # Melody-based Autocomplete Engines (Task 5)

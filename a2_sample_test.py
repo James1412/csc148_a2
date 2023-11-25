@@ -185,20 +185,20 @@ def test_letter_autocompleter() -> None:
     # Check simple autocompletion and sanitization
     results = engine.autocomplete('wh')
     assert len(results) == 1
-    # results = [("what a wonderful world1", 1.0)]
-    assert results[0][0] == 'what a wonderful world1'
+    # results = [("what a wonderful world", 1.0)]
+    assert results[0][0] == 'what a wonderful world'
     assert results[0][1] == 1.0
 
     # Check that numbers are allowed in the sentences
-    results = engine.autocomplete('nu')
+    results = engine.autocomplete('numb')
     assert len(results) == 1
-    assert results[0][0] == 'numbers are 0k4y3'
+    assert results[0][0] == 'numbers are 0k4y'
 
     # Check that one sentence can be inserted twice
     results = engine.autocomplete('a')
-    assert len(results) == 2
-    assert results[0][0] == 'a star is born15'
-    assert results[0][1] == 1.0
+    assert len(results) == 1
+    assert results[0][0] == 'a star is born'
+    assert results[0][1] == 2
 
 ###########################################################################
 # Part 6 sample tests
