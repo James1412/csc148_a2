@@ -262,6 +262,27 @@ class SimplePrefixTree(Autocompleter):
             else:
                 return sorted_list[:limit]
 
+    def remove(self, prefix: list) -> None:
+        """Remove all values that match the given prefix.
+        """
+        if not prefix:
+            self.weight = 0.0
+            self.subtrees = []
+        else:
+            matching_subtree = None
+            for subtree in self.subtrees:
+                if subtree.root == self.root + [prefix[0]]:
+                    matching_subtree = subtree
+                    break
+            if matching_subtree:
+                matching_subtree.remove(prefix[1:])
+                count = 0
+                for subtree in self.subtrees:
+                    count += subtree.weight
+                    if not subtree.is_empty():
+                        self.subtrees = [subtree]
+                self.weight = count
+
 
 
 ################################################################################
