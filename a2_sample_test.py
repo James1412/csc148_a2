@@ -14,7 +14,8 @@ Note: this file is for support purposes only, and is not part of your
 assignment submission.
 """
 from a2_prefix_tree import SimplePrefixTree, CompressedPrefixTree
-from a2_autocomplete_engines import SentenceAutocompleteEngine
+from a2_autocomplete_engines import LetterAutocompleteEngine, \
+    SentenceAutocompleteEngine
 
 
 ###########################################################################
@@ -93,7 +94,7 @@ def test_simple_prefix_tree_autocomplete() -> None:
     # is recursed on first.
     assert t.autocomplete([], 1) == [('cart', 4.5)]
     assert t.autocomplete([], 2) == [('cart', 4.5), ('car', 3.0)]
-    assert t.autocomplete(['ca']) == [('cart', 4.5), ('car', 3.0), ('cat', 2.0)]
+    assert t.autocomplete(['c', 'a']) == [('cart', 4.5), ('car', 3.0), ('cat', 2.0)]
 
 
 def test_simple_prefix_tree_remove() -> None:
@@ -146,6 +147,7 @@ def test_sentence_autocompleter() -> None:
     # Check simple autocompletion and sanitization
     results = engine.autocomplete('what a')
     assert len(results) == 1
+    # results = [("what a wonderful world", 1.0)]
     assert results[0][0] == 'what a wonderful world'
     assert results[0][1] == 1.0
 
@@ -160,6 +162,43 @@ def test_sentence_autocompleter() -> None:
     assert results[0][0] == 'a star is born'
     assert results[0][1] == 15.0 + 6.5
 
+
+def test_letter_autocompleter() -> None:
+    """Basic test for LetterAutocompleteEngine.
+
+    This test relies on the sample_sentences.csv dataset. That file consists
+    of just a few lines, but there are three important details to notice:
+
+        1. You should use the second entry of each csv file as the weight of
+           the sentence. This entry can be a float! (Don't assume it's an int.)
+        2. The file contains two sentences that are sanitized to the same
+           string, and so this value is inserted twice. This means its weight
+           is the *sum* of the weights from each of the two lines in the file.
+        3. Numbers *are allowed* in the strings (this is true for both types
+           of text-based autocomplete engines). Don't remove them!
+    """
+    engine = LetterAutocompleteEngine({
+        'file': 'data/texts/sample_sentences.csv',
+        'autocompleter': 'simple'
+    })
+
+    # Check simple autocompletion and sanitization
+    results = engine.autocomplete('wh')
+    assert len(results) == 1
+    # results = [("what a wonderful world1", 1.0)]
+    assert results[0][0] == 'what a wonderful world1'
+    assert results[0][1] == 1.0
+
+    # Check that numbers are allowed in the sentences
+    results = engine.autocomplete('nu')
+    assert len(results) == 1
+    assert results[0][0] == 'numbers are 0k4y3'
+
+    # Check that one sentence can be inserted twice
+    results = engine.autocomplete('a')
+    assert len(results) == 2
+    assert results[0][0] == 'a star is born15'
+    assert results[0][1] == 1.0
 
 ###########################################################################
 # Part 6 sample tests

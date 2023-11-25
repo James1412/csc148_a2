@@ -56,9 +56,11 @@ class LetterAutocompleteEngine:
         at least one non-space character, it is inserted into the
         Autocompleter.
 
-        SKIP sanitized strings that do not contain at least one non-space character!
+        SKIP sanitized strings that do not contain at least
+        one non-space character!
 
-        When each string is inserted, it is given a weight of 1.0. It is possible
+        When each string is inserted, it is given a weight of 1.0.
+         It is possible
         for the same string to appear on more than one line of the input file;
         this results in that string receiving a larger weight (because of how
         Autocompleter.insert works).
@@ -72,9 +74,27 @@ class LetterAutocompleteEngine:
         # We've opened the file for you here. You should iterate over the
         # lines of the file and process them according to the description in
         # this method's docstring.
+        if config['autocompleter'] == 'simple':
+            self.autocompleter = SimplePrefixTree()
+        elif config['autocompleter'] == 'compressed':
+            self.autocompleter = CompressedPrefixTree()
+
         with open(config['file'], encoding='utf8') as f:
             for line in f:
-                ...
+                # If there is any non-whitespace character
+                if line != "":
+                    sanitized_string = ""
+                    # Text Sanitization
+                    for character in line:
+                        # Convert all letters to lowercase
+                        char = character.lower()
+                        # if that lowercase is alphanumerical or a space
+                        if char.isalnum() or char == " ":
+                            sanitized_string += char
+                    # If it's not empty, insert it to the autocompleter
+                    if sanitized_string != "":
+                        self.autocompleter.insert(sanitized_string, 1.0,
+                                                  list(sanitized_string))
 
     def autocomplete(self, prefix: str, limit: int | None = None) -> list[tuple[str, float]]:
         """Return up to <limit> matches for the given prefix string.
@@ -91,6 +111,7 @@ class LetterAutocompleteEngine:
         - limit is None or limit > 0
         - <prefix> is a sanitized string
         """
+        return self.autocompleter.autocomplete(list(prefix), limit)
 
     def remove(self, prefix: str) -> None:
         """Remove all strings that match the given prefix string.
@@ -101,6 +122,7 @@ class LetterAutocompleteEngine:
         Preconditions:
         - <prefix> is a sanitized string
         """
+        self.autocompleter.remove(list(prefix))
 
 
 @check_contracts

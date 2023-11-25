@@ -239,9 +239,7 @@ class SimplePrefixTree(Autocompleter):
         - limit is None or limit > 0
         """
         if self.is_leaf():
-            lst = []
-            tuple1 = (self.root[0], self.weight)
-            lst.append(tuple1)
+            lst = [(self.root[0], self.weight)]
             return lst
 
         else:
@@ -249,13 +247,17 @@ class SimplePrefixTree(Autocompleter):
             for subtree in self.subtrees:
                 sorted_list += subtree.autocomplete(prefix)
 
+            # If prefix is given
             if prefix is not None:
-                index = 0
-                for i in prefix:
-                    for item in sorted_list:
-                        if i not in item[0]:
-                            sorted_list.pop(index)
-                        index += 1
+                # ex) prefix: ['c','a']
+                for item in sorted_list:
+                    # ex) item: ('cat', 1.0), item_chars: ['c', 'a', 't']
+                    item_chars = list(item[0])
+                    # Check if the characters appear in the correct order
+                    if all(item_chars[i] == prefix[i] for i in range(len(prefix))):
+                        continue
+                    else:
+                        sorted_list.remove(item)
 
             if limit is None:
                 return sorted(sorted_list, key=lambda x: x[1], reverse=True)
