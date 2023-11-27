@@ -259,7 +259,10 @@ class SimplePrefixTree(Autocompleter):
                     item_chars = list(item[0])
                     item_word = item[0].split()
                     # Check if the characters appear in the correct order
-                    if all(item_chars[i] == prefix[i] for i in range(len(prefix))) or all(item_word[i] == prefix[i] for i in range(len(prefix))):
+                    if all(item_chars[i] == prefix[i] for i in
+                           range(len(prefix))) or\
+                            all(item_word[i] == prefix[i]
+                                for i in range(len(prefix))):
                         continue
                     else:
                         sorted_list.remove(item)

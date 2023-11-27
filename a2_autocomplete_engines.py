@@ -90,7 +90,8 @@ class LetterAutocompleteEngine:
                         # Convert all letters to lowercase
                         char = character.lower()
                         # if that lowercase is alphanumerical or a space
-                        if char.isalnum() or char == " " or char == "," or char == ".":
+                        if char.isalnum() or char == " " or char == "," or\
+                                char == ".":
                             sanitized_string += char
                     print(sanitized_string)
                     sanitized_string = sanitized_string.split(",")
@@ -189,13 +190,15 @@ class SentenceAutocompleteEngine:
                         # Convert all letters to lowercase
                         char = character.lower()
                         # if that lowercase is alphanumerical or a space
-                        if char.isalnum() or char == " " or char == "," or char == ".":
+                        if char.isalnum() or char == " " or char == "," or\
+                                char == ".":
                             sanitized_string += char
                     print(sanitized_string)
                     sanitized_string = sanitized_string.split(",")
                     # If it's not empty, insert it to the autocompleter
                     if sanitized_string != "":
-                        self.autocompleter.insert(sanitized_string[0], float(sanitized_string[1]),
+                        self.autocompleter.insert(sanitized_string[0],
+                                                  float(sanitized_string[1]),
                                                   list(sanitized_string[0].split()))
             print(self.autocompleter)
 
@@ -270,6 +273,20 @@ class MelodyAutocompleteEngine:
         """
         # We haven't given you any starter code here! You should review how
         # you processed CSV files on Assignment 1.
+        if config['autocompleter'] == 'simple':
+            self.autocompleter = SimplePrefixTree()
+        elif config['autocompleter'] == 'compressed':
+            self.autocompleter = CompressedPrefixTree()
+
+        with open(config['file'], encoding='utf8') as f:
+            for line in f:
+                if not line or not line[0]:
+                    continue
+                melody_name = line[0]
+                for i in range(1, len(line)):
+                    melody_interval = int(line[i])
+                self.autocompleter.insert(melody_interval, 1.0, melody_name)
+
 
     def autocomplete(
         self, prefix: list[int], limit: int | None = None
@@ -284,9 +301,11 @@ class MelodyAutocompleteEngine:
         Preconditions:
         - limit is None or limit > 0
         """
+        return self.autocompleter.autocomplete(prefix, limit)
 
     def remove(self, prefix: list[int]) -> None:
         """Remove all melodies that match the given interval sequence."""
+        self.autocompleter.remove(list[prefix])
 
 
 ###############################################################################
@@ -365,7 +384,7 @@ if __name__ == '__main__':
 
     # print(example_letter_autocomplete())
     # print(example_sentence_autocomplete())
-    # print(example_melody_autocomplete(play=False))
+    print(example_melody_autocomplete(play=False))
 
     # Uncomment the python_ta lines below and run this module.
     # This is different that just running doctests! To run this file in PyCharm,
