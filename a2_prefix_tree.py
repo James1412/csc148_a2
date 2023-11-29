@@ -18,6 +18,8 @@ from __future__ import annotations
 from typing import Any
 from python_ta.contracts import check_contracts
 
+from a2_melody import Melody
+
 
 ################################################################################
 # The Autocompleter ADT
@@ -245,7 +247,6 @@ class SimplePrefixTree(Autocompleter):
         if self.is_leaf():
             lst = [(self.root[0], self.weight)]
             return lst
-
         else:
             sorted_list = []
             for subtree in self.subtrees:
@@ -255,17 +256,33 @@ class SimplePrefixTree(Autocompleter):
             if prefix is not None:
                 # ex) prefix: ['c','a']
                 for item in sorted_list:
-                    # ex) item: ('cat', 1.0), item_chars: ['c', 'a', 't']
-                    item_chars = list(item[0])
-                    item_word = item[0].split()
-                    # Check if the characters appear in the correct order
-                    if all(item_chars[i] == prefix[i] for i in
-                           range(len(prefix))) or\
-                            all(item_word[i] == prefix[i]
-                                for i in range(len(prefix))):
-                        continue
+
+                    # if it's a melody
+                    if type(item[0]) is not str:
+                        interval_sequence = []
+                        for tuple_index in range(0, len(item[0].notes), 2):
+                            if item[0].notes[tuple_index] != item[0].notes[-1]:
+                                diff = item[0].notes[tuple_index + 1][0] - \
+                                       item[0].notes[tuple_index][0]
+                            interval_sequence.append(diff)
+                        if all(interval_sequence[i] == prefix[i] for i in range(len(prefix))):
+                            continue
+                        else:
+                            sorted_list.remove(item)
+
+                    # if it's a string
                     else:
-                        sorted_list.remove(item)
+                        # ex) item: ('cat', 1.0), item_chars: ['c', 'a', 't']
+                        item_chars = list(item[0])
+                        item_word = item[0].split()
+                        # Check if the characters appear in the correct order
+                        if all(item_chars[i] == prefix[i] for i in
+                               range(len(prefix))) or\
+                                all(item_word[i] == prefix[i]
+                                    for i in range(len(prefix))):
+                            continue
+                        else:
+                            sorted_list.remove(item)
 
             if limit is None:
                 return sorted(sorted_list, key=lambda x: x[1], reverse=True)

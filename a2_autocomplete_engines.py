@@ -258,9 +258,11 @@ class MelodyAutocompleteEngine:
           specifying which subclass of Autocompleter to use.
 
         Preconditions:
-        - config['file'] is the path to a *CSV file* where each line has the following format:
+        - config['file'] is the path to a *CSV file* where each line has the
+         following format:
             - The first entry is the name of a melody (a string).
-            - The remaining entries are grouped into pairs of integers (as in Assignment 1)
+            - The remaining entries are grouped into pairs of integers (as in
+             Assignment 1)
               where the first number in each pair is a note pitch,
               and the second number is the corresponding duration.
         - config['autocompleter'] in ['simple', 'compressed']
@@ -273,23 +275,36 @@ class MelodyAutocompleteEngine:
         """
         # We haven't given you any starter code here! You should review how
         # you processed CSV files on Assignment 1.
+
         if config['autocompleter'] == 'simple':
             self.autocompleter = SimplePrefixTree()
         elif config['autocompleter'] == 'compressed':
             self.autocompleter = CompressedPrefixTree()
 
         with open(config['file'], encoding='utf8') as f:
-            for line in f:
-                if not line or not line[0]:
-                    continue
-                melody_name = line[0]
-                for i in range(1, len(line)):
-                    melody_interval = int(line[i])
-                self.autocompleter.insert(melody_interval, 1.0, melody_name)
+            for row in f:
+                melody_list = []
+                if not row or row[0] == '':
+                    continue  # Skip empty lines or lines with blank entries
+                elements = row.split(',')
+                melody_name = elements[0]
+                for i in range(1, len(elements), 2):
+                    if elements[i] != '':
+                        melody_tuple = (int(elements[i]), int(elements[i + 1]))
+                        melody_list.append(melody_tuple)
+                melody = Melody(melody_name, melody_list)
 
+                interval_sequence = []
+                for tuple_index in range(0, len(melody_list), 2):
+                    if melody_list[tuple_index] != melody_list[-1]:
+                        diff = melody_list[tuple_index + 1][0] - \
+                               melody_list[tuple_index][0]
+                    interval_sequence.append(diff)
+
+                self.autocompleter.insert(melody, 1.0, interval_sequence)
 
     def autocomplete(
-        self, prefix: list[int], limit: int | None = None
+            self, prefix: list[int], limit: int | None = None
     ) -> list[tuple[Melody, float]]:
         """Return up to <limit> matches for the given interval sequence.
 
@@ -301,11 +316,13 @@ class MelodyAutocompleteEngine:
         Preconditions:
         - limit is None or limit > 0
         """
+        print(self.autocompleter)
+        # ex) prefix: [0, 0], values: [Melody(), weight]
         return self.autocompleter.autocomplete(prefix, limit)
 
     def remove(self, prefix: list[int]) -> None:
         """Remove all melodies that match the given interval sequence."""
-        self.autocompleter.remove(list[prefix])
+        self.autocompleter.remove(prefix)
 
 
 ###############################################################################
@@ -355,7 +372,8 @@ def example_melody_autocomplete(play: bool = False) -> list[tuple[Melody, float]
     If <play> is True, also play each melody using Pygame.
 
     Notes:
-    - You may wish to comment out the @check_contracts decorator for the prefix tree classes
+    - You may wish to comment out the @check_contracts decorator for the prefix
+     tree classes
       and Melody for this example.
     - You can try the other datasets under data/melodies.
     - Remember, you can open csv files in PyCharm, too!
@@ -384,7 +402,7 @@ if __name__ == '__main__':
 
     # print(example_letter_autocomplete())
     # print(example_sentence_autocomplete())
-    print(example_melody_autocomplete(play=False))
+    print(example_melody_autocomplete(play=True))
 
     # Uncomment the python_ta lines below and run this module.
     # This is different that just running doctests! To run this file in PyCharm,
