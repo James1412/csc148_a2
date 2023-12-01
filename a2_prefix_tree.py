@@ -401,7 +401,7 @@ class CompressedPrefixTree(SimplePrefixTree):
             1) not in this Autocompleter, or
             2) was previously inserted with the SAME prefix sequence
         """
-        if not prefix:
+        if not prefix:  # prefix == []
             self.weight = weight
             leaf = CompressedPrefixTree()
             leaf.root = [value]
@@ -412,7 +412,6 @@ class CompressedPrefixTree(SimplePrefixTree):
             next_char = prefix.pop(0)
             node = CompressedPrefixTree()
             node.root = self.root + [next_char]
-
             # Check if a subtree with the same root exists
             matching_subtree = next((subtree for subtree in self.subtrees
                                      if subtree.root == node.root), None)
@@ -423,9 +422,11 @@ class CompressedPrefixTree(SimplePrefixTree):
                     matching_subtree.subtrees[0].weight += weight
                     return
                 matching_subtree.insert(value, weight, prefix)
+                if len(matching_subtree.subtrees) == 1 and not matching_subtree.subtrees[0].is_leaf():
+                    matching_subtree.root, matching_subtree.subtrees = matching_subtree.subtrees[0].root, matching_subtree.subtrees[0].subtrees
             else:
-                self.subtrees.append(node)
                 node.insert(value, weight, prefix)
+                self.subtrees.append(node)
 
     def autocomplete(self, prefix: list,
                      limit: int | None = None) -> list[tuple[Any, float]]:

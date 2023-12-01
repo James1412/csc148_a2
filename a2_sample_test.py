@@ -81,6 +81,7 @@ def test_simple_prefix_tree_autocomplete() -> None:
     t.insert('car', 3.0, ['c', 'a', 'r'])
     t.insert('cart', 4.5, ['c', 'a', 'r', 't'])
     t.insert('dog', 4.0, ['d', 'o', 'g'])
+    print(t)
 
     assert t.autocomplete(['d']) == [('dog', 4.0)]
 
