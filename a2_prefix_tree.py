@@ -362,18 +362,18 @@ class CompressedPrefixTree(SimplePrefixTree):
                     common2 = self.longest_common_prefix(i.root, prefix)
                     if len(common2) > len(common):
                         i.insert(value, weight, prefix)
-            else:
-                # should demote
-                self.demote(common)
-                new_tree = CompressedPrefixTree()
-                leaf = CompressedPrefixTree()
-                new_tree.root = prefix
-                leaf.root = value
-                leaf.weight = weight
-                new_tree.subtrees.append(leaf)
-                new_tree.weight += weight
-                self.subtrees.append(new_tree)
-                self.weight += new_tree.weight
+                        return
+            # should demote
+            self.demote(common)
+            new_tree = CompressedPrefixTree()
+            leaf = CompressedPrefixTree()
+            new_tree.root = prefix
+            leaf.root = value
+            leaf.weight = weight
+            new_tree.subtrees.append(leaf)
+            new_tree.weight += weight
+            self.subtrees.append(new_tree)
+            self.weight += new_tree.weight
 
     def demote(self, lst):
         tree = CompressedPrefixTree()
