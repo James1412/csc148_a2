@@ -213,7 +213,10 @@ def test_compressed_prefix_tree_structure() -> None:
     t = CompressedPrefixTree()
     t.insert('cat', 2.0, ['c', 'a', 't'])
     t.insert('car', 3.0, ['c', 'a', 'r'])
+    t.insert('carr', 1.5, ['c','a','r','r'])
+    t.insert('carrt', 1.1, ['c','a','r','r','t'])
     t.insert('dog', 4.0, ['d', 'o', 'g'])
+    print('\n')
     print(t)
     # t has 3 values (note that __len__ only counts the values, which are
     # stored at the *leaves* of the tree).
