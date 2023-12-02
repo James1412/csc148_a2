@@ -347,7 +347,7 @@ class CompressedPrefixTree(SimplePrefixTree):
             1) not in this Autocompleter, or
             2) was previously inserted with the SAME prefix sequence
         """
-        if self.root == []:
+        if not self.root:
             self.root = prefix
             leaf = CompressedPrefixTree()
             leaf.root = value
@@ -361,6 +361,10 @@ class CompressedPrefixTree(SimplePrefixTree):
                 for i in self.subtrees:
                     common2 = self.longest_common_prefix(i.root, prefix)
                     if len(common2) > len(common):
+                        if i.root == common2:
+                            i.weight += weight
+                            self.weight += weight
+                            return
                         i.insert(value, weight, prefix)
                         return
             # should demote
