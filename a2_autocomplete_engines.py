@@ -14,7 +14,6 @@ testing directly! You may, however, add new private attributes, methods, and
 top-level functions to this file.
 """
 from __future__ import annotations
-import csv
 import time
 from typing import Any
 from python_ta.contracts import check_contracts
@@ -69,8 +68,6 @@ class LetterAutocompleteEngine:
         - config['file'] is a valid path to a file as described above
         - config['autocompleter'] in ['simple', 'compressed']
         """
-        ...
-
         # We've opened the file for you here. You should iterate over the
         # lines of the file and process them according to the description in
         # this method's docstring.
@@ -81,7 +78,6 @@ class LetterAutocompleteEngine:
 
         with open(config['file'], encoding='utf8') as f:
             for line in f:
-                weight = 0
                 # If there is any non-whitespace character
                 if line != "":
                     sanitized_string = ""
@@ -181,7 +177,6 @@ class SentenceAutocompleteEngine:
 
         with open(config['file'], encoding='utf8') as f:
             for line in f:
-                weight = 0
                 # If there is any non-whitespace character
                 if line != "":
                     sanitized_string = ""
@@ -229,6 +224,7 @@ class SentenceAutocompleteEngine:
         - <prefix> is a sanitized string
         """
         self.autocompleter.remove(list(prefix.split()))
+
 
 ################################################################################
 # Melody-based Autocomplete Engines (Task 5)
@@ -316,7 +312,6 @@ class MelodyAutocompleteEngine:
         Preconditions:
         - limit is None or limit > 0
         """
-        print(self.autocompleter)
         # ex) prefix: [0, 0], values: [Melody(), weight]
         return self.autocompleter.autocomplete(prefix, limit)
 
@@ -395,14 +390,13 @@ def example_melody_autocomplete(play: bool = False) -> list[tuple[Melody, float]
 
 
 if __name__ == '__main__':
-    # This is used to increase the recursion limit so that your autocomplete engines work
     # even for tall SimplePrefixTrees.
     import sys
     sys.setrecursionlimit(5000)
 
     # print(example_letter_autocomplete())
     # print(example_sentence_autocomplete())
-    print(example_melody_autocomplete(play=True))
+    print(example_melody_autocomplete(play=False))
 
     # Uncomment the python_ta lines below and run this module.
     # This is different that just running doctests! To run this file in PyCharm,
@@ -411,18 +405,17 @@ if __name__ == '__main__':
     #
     # python_ta will check your work and open up your web browser to display
     # its report. For full marks, you must fix all issues reported, so that
-    # you see "None!" under both "Code Errors" and "Style and Convention Errors".
-    # TIP: To quickly uncomment lines in PyCharm, select the lines below and press
     # "Ctrl + /" or "⌘ + /".
-    # import python_ta
-    # python_ta.check_all(
-    #     config={
-    #         'allowed-io': [
-    #             'LetterAutocompleteEngine.__init__',
-    #             'SentenceAutocompleteEngine.__init__',
-    #             'MelodyAutocompleteEngine.__init__'
-    #         ],
-    #         'extra-imports': ['csv', 'time', 'sys', 'a2_prefix_tree', 'a2_melody'],
-    #         'max-line-length': 100,
-    #     }
-    # )
+    import python_ta
+    python_ta.check_all(
+        config={
+            'allowed-io': [
+                'LetterAutocompleteEngine.__init__',
+                'SentenceAutocompleteEngine.__init__',
+                'MelodyAutocompleteEngine.__init__'
+            ],
+            'extra-imports': ['csv', 'time', 'sys',
+                              'a2_prefix_tree', 'a2_melody'],
+            'max-line-length': 100,
+        }
+    )

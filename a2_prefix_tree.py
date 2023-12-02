@@ -18,8 +18,6 @@ from __future__ import annotations
 from typing import Any
 from python_ta.contracts import check_contracts
 
-from a2_melody import Melody
-
 
 ################################################################################
 # The Autocompleter ADT
@@ -27,6 +25,7 @@ from a2_melody import Melody
 class Autocompleter:
     """An abstract class representing the Autocompleter Abstract Data Type.
     """
+
     def __len__(self) -> int:
         """Return the number of values stored in this Autocompleter."""
         raise NotImplementedError
@@ -231,6 +230,7 @@ class SimplePrefixTree(Autocompleter):
             else:
                 self.subtrees.append(node)
                 node.insert(value, weight, prefix)
+            self.subtrees.sort(key=lambda tree: tree.weight, reverse=True)
 
     def autocomplete(self, prefix: list,
                      limit: int | None = None) -> list[tuple[Any, float]]:
@@ -265,7 +265,8 @@ class SimplePrefixTree(Autocompleter):
                                 diff = item[0].notes[tuple_index + 1][0] - \
                                        item[0].notes[tuple_index][0]
                             interval_sequence.append(diff)
-                        if all(interval_sequence[i] == prefix[i] for i in range(len(prefix))):
+                        if all(interval_sequence[i] == prefix[i]
+                               for i in range(len(prefix))):
                             continue
                         else:
                             sorted_list.remove(item)
@@ -277,7 +278,7 @@ class SimplePrefixTree(Autocompleter):
                         item_word = item[0].split()
                         # Check if the characters appear in the correct order
                         if all(item_chars[i] == prefix[i] for i in
-                               range(len(prefix))) or\
+                               range(len(prefix))) or \
                                 all(item_word[i] == prefix[i]
                                     for i in range(len(prefix))):
                             continue
@@ -374,8 +375,10 @@ class CompressedPrefixTree(SimplePrefixTree):
             new_tree.weight += weight
             self.subtrees.append(new_tree)
             self.weight += new_tree.weight
+        self.subtrees.sort(key=lambda tree: tree.weight, reverse=True)
 
-    def demote(self, lst):
+    def demote(self, lst: list) -> None:
+        """Demote a tree"""
         tree = CompressedPrefixTree()
         tree.weight += self.weight
         tree.root = self.root
@@ -383,7 +386,8 @@ class CompressedPrefixTree(SimplePrefixTree):
         self.root = lst
         self.subtrees = [tree]
 
-    def longest_common_prefix(self, list1, list2) -> list:
+    def longest_common_prefix(self, list1: list, list2: list) -> list:
+        """Find the longest common prefix"""
         common_prefix = []
         min_len = min(len(list1), len(list2))
         for i in range(min_len):
@@ -396,6 +400,7 @@ class CompressedPrefixTree(SimplePrefixTree):
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()
 
     # Uncomment the python_ta lines below and run this module.
@@ -405,11 +410,10 @@ if __name__ == '__main__':
     #
     # python_ta will check your work and open up your web browser to display
     # its report. For full marks, you must fix all issues reported, so that
-    # you see "None!" under both "Code Errors" and "Style and Convention Errors".
-    # TIP: To quickly uncomment lines in PyCharm, select the lines below and press
-    # "Ctrl + /" or "⌘ + /".
-    # import python_ta
-    # python_ta.check_all(config={
-    #     'max-line-length': 100,
-    #     'max-nested-blocks': 4
-    # })
+    # "Ctrl + /" or "⌘ + /"
+    import python_ta
+
+    python_ta.check_all(config={
+        'max-line-length': 100,
+        'max-nested-blocks': 4
+    })
