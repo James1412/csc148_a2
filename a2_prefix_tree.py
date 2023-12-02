@@ -258,12 +258,11 @@ class SimplePrefixTree(Autocompleter):
                 for item in sorted_list:
 
                     # if it's a melody
-                    if type(item[0]) is not str:
+                    if not isinstance(item[0], str):
                         interval_sequence = []
                         for tuple_index in range(0, len(item[0].notes), 2):
                             if item[0].notes[tuple_index] != item[0].notes[-1]:
-                                diff = item[0].notes[tuple_index + 1][0] - \
-                                       item[0].notes[tuple_index][0]
+                                diff = item[0].notes[tuple_index + 1][0] - item[0].notes[tuple_index][0]
                             interval_sequence.append(diff)
                         if all(interval_sequence[i] == prefix[i]
                                for i in range(len(prefix))):
